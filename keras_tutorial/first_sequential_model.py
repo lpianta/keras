@@ -1,14 +1,10 @@
 # import libraries for data creation and process
 import itertools
+from json import load
 import numpy as np
 from random import randint
 from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
-
-# import for confusion matrix
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
-import itertools
 
 # import libraries for model creation
 import tensorflow as tf
@@ -19,6 +15,16 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import categorical_crossentropy
 from tensorflow.python.ops.gen_batch_ops import batch
 from tensorflow.python.ops.gen_nn_ops import softmax
+
+# import for confusion matrix
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import itertools
+
+# import for saving and loading model
+import os.path
+from tensorflow.keras.models import model_from_json
+from tensorflow.keras.models import load_model
 
 # SEQUENTIAL MODEL
 # X = input data -- np array, tf tensor, dictionary mapping input names to array/tensor, tf.data dataset,
@@ -182,3 +188,39 @@ def plot_confusion_matrix(cm, classes,
 
 
 plot_confusion_matrix(cm=cm, classes=cm_plot_labels)
+
+# SAVE THE MODEL
+# there are multiple ways to save a mdoel.
+# first one: .save() -- check to see if file exists, if not save it
+if os.path.isfile("models/medial_trial_model.h5") is False:
+    model.save("models/medical_trial_model.h5")
+
+# this function saves:
+# the architecture of the model,
+# the weights,
+# the training configuration (loss, optimizer),
+# the state of the optimizer
+
+# load the model
+new_model = load_model("models/medical_trial_model.h5")
+
+# second one: .to_json() -- save only the architecture (also to_yaml)
+json_string = model.to_json()
+
+# load the architecture (also from_yaml)
+model_architecture = model_from_json(json_string)
+
+# third one: .save_weights() --  save only the weights
+if os.path.isfile("models/medical_trial_model_weights.h5") is False:
+    model.save("models/medical_trial_model_weights.h5")
+
+# when we save only the weights, we need to create a new model with the
+# same architecture and then load the weights
+
+model2 = Sequential([
+    Dense(units=16, input_shape=(1,), activation='relu'),
+    Dense(units=32, activation='relu'),
+    Dense(units=2, activation='softmax')
+])
+
+model2.load_weights("models/medical_trial_model_weights.h5")

@@ -133,3 +133,4 @@ dmypy.json
 
 # dataset folder
 datasets
+data
